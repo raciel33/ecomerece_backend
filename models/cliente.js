@@ -46,10 +46,24 @@ const ClienteSchema = Schema({
     dni: {
         type: String,
         require: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        require: true
     }
 
 }, { collection: 'Cliente' }); //aqui podemos definir el nombre de la colection
 
+
+ClienteSchema.method('toJSON', function() {
+
+    //extraemos __v,_id de todos los campos de mi objeto
+    const { __v, ...object } = this.toObject();
+
+
+    return object;
+})
 
 
 

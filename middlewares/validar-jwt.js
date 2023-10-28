@@ -20,7 +20,7 @@ const validarJWT = (req, res, next) => {
         //process.env.JWT_SECRET: hace referencia donde tengo la palabra secreta para firmar token (./env)
         const { uid } = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.uid = uid
+        req.uid = uid;
         next();
 
 
@@ -43,7 +43,7 @@ const validarADMIN_ROLE = async(req, res, next) => {
     try {
 
         const adminDB = await Admin.findById(uid); //Buscamos el usuario por id
-
+        console.log(adminDB.rol);
         //si no existe
         if (!adminDB) {
             res.status(404).json({
@@ -52,7 +52,7 @@ const validarADMIN_ROLE = async(req, res, next) => {
             });
         }
         //si el role no es 'ADMIN_ROLE'
-        if (adminDB.role != 'ADMIN_ROLE') {
+        if (adminDB.rol != 'admin') {
             res.status(403).json({
                 ok: false,
                 msg: 'No tiene privilegios para hacer eso'
@@ -70,49 +70,9 @@ const validarADMIN_ROLE = async(req, res, next) => {
 
 }
 
-const validarADMIN_ROLE_o_MISMO_USUARIO = async(req, res, next) => {
-
-    const uid = req.uid;
-    const id = req.params.id; //id que viene en la url
-
-    try {
-
-        const adminDB = await Admin.findById(uid); //Buscamos el usuario por id
-
-        //si no existe
-        if (!adminDB) {
-            res.status(404).json({
-                ok: false,
-                msg: 'usuario no existe'
-            });
-        }
-        //si el role  es 'ADMIN_ROLE' o uid === id es un usuario que se quiere actualizar a si mismo
-        if (adminDB.role === 'ADMIN_ROLE' || uid === id) {
-
-            next(); ////dejalo a actualizar
-
-        } else {
-            res.status(403).json({
-                ok: false,
-                msg: 'No tiene privilegios para hacer eso'
-            });
-
-        }
-
-
-    } catch (error) {
-        res.status(500).json({
-            ok: false,
-            msg: 'hable con el administrador'
-        });
-
-    }
-
-}
 
 
 module.exports = {
     validarJWT,
     validarADMIN_ROLE,
-    validarADMIN_ROLE_o_MISMO_USUARIO
 }

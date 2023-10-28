@@ -133,7 +133,6 @@ const renewToken = async(req, res = response) => {
         ok: true,
         adminDB,
         token,
-        menu: getMenuFrontEnd(adminDB.role) //mostrara el menu en dependencia del role que tenga el usuario
 
     })
 }
