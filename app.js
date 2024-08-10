@@ -28,6 +28,7 @@ var mongoose = require('mongoose');
 //referencias al archivo de rutas
 var cliente_route = require('./routes/cliente')
 var admin_route = require('./routes/admin')
+var producto_route = require('./routes/producto')
 
 
 dbConnection();
@@ -39,6 +40,8 @@ app.use(bodyparser.json({ limit: '50mb', extended: true }))
 //estableciendo rutas
 app.use('/api', cliente_route);
 app.use('/api', admin_route);
+app.use('/api', producto_route);
+
 
 
 
