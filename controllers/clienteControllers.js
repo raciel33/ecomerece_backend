@@ -200,14 +200,12 @@ const registro_cliente_admin = async(req, resp = response) => {
         if (admin) {
             if (admin.rol === 'admin') {
                 var data = req.body;
-                console.log(data);
-
-
                 //Encriptado de contraseña
                 const salt = bcrypt.genSaltSync();
                 data.password = bcrypt.hashSync(password, salt);
 
                 const cliente = new Cliente(data); //instancia de cliente del modelo             
+                console.log(cliente);
 
                 await cliente.save(); //guarda en la BD
 

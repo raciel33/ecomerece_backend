@@ -3,6 +3,7 @@ const { generarJWT } = require('../helpers/jwt');
 //importamos el modelo
 
 const Producto = require('../models/productos');
+const Inventario = require('../models/inventario');
 const Admin = require('../models/admin');
 const { response } = require('express');
 const fs = require('fs'); //para la imagen de portada de los productos
@@ -21,7 +22,7 @@ const registro_producto_admin = async(req, resp = response) => {
             const data = req.body; //recibo la data
 
             //-----------PROCESAMIENTO DE LA IMAGEN PORTADA---------------------------
-            const img_path = req.files.portada.path //recibo la imagen de portada (ruta donde esta el nombre de la imagen)
+            const img_path = req.files.portada.path; //recibo la imagen de portada (ruta donde esta el nombre de la imagen)
 
             if (img_path == undefined) {
                 resp.status(500).json({
@@ -46,9 +47,20 @@ const registro_producto_admin = async(req, resp = response) => {
 
                 await producto.save(); //guarda en la BD
 
+                //Se registra también el producto en inventario
+                let inventario = await Inventario.create({
+                    admin: req.uid, //ver que usuario creó este producto
+                    apellidos: req.apellidos,
+                    cantidad: data.stock,
+                    proveedor: 'Primer registro',
+                    producto: producto._id
+
+                })
+
                 resp.json({
                     ok: true,
                     producto,
+                    inventario,
                     msg: 'Nuevo producto creado'
                 });
             }
@@ -283,7 +295,140 @@ const borrarProducto = async(req, res = response) => {
     }
 
 }
+const listar_inventario_producto_admin = async(req, res = response) => {
 
+    //captamos el parametro
+    const uid = req.params['id'];
+    console.log(uid);
+
+
+    try {
+        const producto = await Producto.findById(uid);
+
+        //si el usuario no existe
+        if (!producto) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'El producto no existe'
+            })
+        } else {
+
+            //captamos el producto que este en el inventario con ese id y el user que lo creó y lo ordenamos por fecha
+
+            var reg = await Inventario.find({ producto: uid }).populate('admin').sort({ createdAt: -1 });
+
+            res.status(200).send({ data: reg }); //enviamos inventario del producto captado
+        }
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado '
+        })
+    }
+
+}
+const eliminar_inventario_producto_admin = async(req, res = response) => {
+
+    //captamos el parametro
+    const id = req.params['id'];
+
+    try {
+
+        //localizamos el inventario donde esta el producto
+        const inventario = await Inventario.find({ producto: id })
+
+        //localizamos el id del inventario
+        const inventarioId = await Inventario.findById(inventario)
+
+        //eliminamos el inventario del producto
+        const reg = await Inventario.findByIdAndDelete(inventarioId._id);
+
+        //localizamos el producto
+        let producto = await Producto.findById({ _id: id });
+
+        //restamos el stock
+        const nuevo_stock = parseInt(producto.stock - inventarioId.cantidad);
+
+        let productoStockActualizado = await Producto.findByIdAndUpdate({ _id: id }, {
+
+            stock: nuevo_stock //actualizamos el stock
+        });
+
+
+        res.status(200).send({ data: productoStockActualizado });
+
+
+        /*
+            let producto = await Producto.findById({ _id: id }); //localizamos el producto
+        
+            var inventario = await Inventario.find({ producto: id })
+        
+            var nuevo_stock = 0;
+        
+            //nuevo_stock = parseInt(producto.stock - inventario.cantidad); //restamos el stock
+        
+            let productoStockActualizado = await Producto.findByIdAndUpdate({ _id: id }, {
+                
+                stock: nuevo_stock //actualizamos el stock
+            });
+
+            let reg = await Inventario.findByIdAndDelete({ _id: id }); //eliminamos el producto del inventario
+        
+            res.status(200).send({ data: productoStockActualizado });*/
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado '
+        })
+    }
+
+}
+
+const registro_inventario = async(req, resp = response) => {
+
+    const id = req.uid;
+    const admin = await Admin.findById(id);
+
+    if (admin) {
+        if (admin.rol === 'admin') {
+
+            const data = req.body; //recibo la data
+
+
+            //Se registra también el producto en inventario
+            let inventarioRegistro = await Inventario.create(data);
+
+            //localizamos el producto
+            let producto = await Producto.findById({ _id: inventarioRegistro.producto });
+
+            //sumamos el stock actual con el stock a aumentar
+            const nuevo_stock = parseInt(producto.stock + inventarioRegistro.cantidad);
+
+            let productoStockActualizado = await Producto.findByIdAndUpdate({ _id: inventarioRegistro.producto }, {
+
+                stock: nuevo_stock //actualizamos el stock
+            });
+
+            resp.json({
+                ok: true,
+                inventarioRegistro,
+                msg: 'Nuevo producto creado'
+            });
+        }
+
+
+
+
+    } else {
+        console.log('no administrador');
+
+
+    }
+}
 module.exports = {
     registro_producto_admin,
     listarProductos,
@@ -291,5 +436,8 @@ module.exports = {
     getPortada,
     get_producto_id,
     update_producto_admin,
-    borrarProducto
+    borrarProducto,
+    listar_inventario_producto_admin,
+    eliminar_inventario_producto_admin,
+    registro_inventario
 }
