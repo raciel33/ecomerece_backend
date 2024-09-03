@@ -5,7 +5,9 @@ const { generarJWT } = require('../helpers/jwt');
 const Producto = require('../models/productos');
 const Inventario = require('../models/inventario');
 const Admin = require('../models/admin');
+
 const { response } = require('express');
+
 const fs = require('fs'); //para la imagen de portada de los productos
 const path = require('path')
 
@@ -109,6 +111,7 @@ const listarProductos = async(req, res = response) => {
 
 
     }
+
 }
 
 const listar_productos_filtro_admin = async(req, res = response) => {
@@ -160,13 +163,13 @@ const get_producto_id = async(req, resp = response) => {
     const id = req.params['id'];
     const idAdmin = req.uid;
 
-    const reg = await Producto.findById(id);
 
     const admin = await Admin.findById(idAdmin);
 
     if (admin) {
         if (admin.rol === 'admin') {
             try {
+                const reg = await Producto.findById(id);
                 resp.status(200).send({ data: reg });
 
             } catch (error) {
