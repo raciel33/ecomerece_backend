@@ -9,6 +9,7 @@ const { generarJWT } = require('../helpers/jwt');
 const { response } = require('express');
 
 
+//---------------NO ADMINISTRADOR------------------------
 const registroCliente = async(req, resp = response) => {
 
     const { email, password } = req.body; //la respuesta que viene del body
@@ -64,7 +65,25 @@ const registroCliente = async(req, resp = response) => {
 
 
 };
+//Obtener cliente que está en la sesion NO ADMINISTRADOR
+const get_cliente_sesion_id = async(req, resp = response) => {
 
+    const id = req.params['id'];
+
+    try {
+        const reg = await Cliente.findById(id);
+        resp.status(200).send({ data: reg });
+
+    } catch (error) {
+        resp.status(200).send({ data: undefined });
+
+    }
+
+
+
+
+
+}
 
 const login_cliente = async(req, res = response) => {
 
@@ -103,6 +122,7 @@ const login_cliente = async(req, res = response) => {
         res.json({
             ok: true,
             token,
+            clienteBD
 
         });
 
@@ -117,32 +137,92 @@ const login_cliente = async(req, res = response) => {
     }
 }
 
-//listar todos los clientes
-const getClientes = async(req, resp) => {
+const update_cliente_perfil = async(req, resp = response) => {
 
-    const desde = Number(req.query.desde); //pagination
-
-    const [clientes, total] = await Promise.all([
-
-        // Usuario.find();: devuelve todos los campos
-        //  Usuario.find( {}, 'nombre email'); especificamos los campos que queremos 
-        //PAGINACION!!!!!!!
-        //skip( desde ) obtiene el resultado a partir de aqui
-        //limit( 5 ): definimos el numero de resultados a obtener
-
-        Cliente.find().skip(desde).limit(6),
-        Cliente.count()
-    ])
+    const id = req.params['id'];
 
 
-    resp.json({
-        ok: true,
-        clientes,
-        total
-    });
-};
+    try {
+
+        const data = req.body
+        const cliente = await Cliente.findById(id);
 
 
+        //si el usuario no existe
+        if (!cliente) {
+            return resp.status(404).json({
+                ok: false,
+                msg: 'No exixtse cliente con ese id'
+            });
+        }
+
+        //si se va actualizar el password
+        const { password } = req.body; // extraemos el email
+
+        if (password) {
+            //Encriptado de contraseña
+            const salt = bcrypt.genSaltSync();
+            cliente.password = bcrypt.hashSync(password, salt);
+
+            //findByIdAndUpdate ( uid, campos) (el primer parametro 'uid' indicamos que usuario queremos actualizar y el segundo 'campos' los campos a a actualizar)
+            const clienteActualizado = await Cliente.findByIdAndUpdate({ _id: id }, {
+                nombres: data.nombres,
+                apellidos: data.apellidos,
+                telefono: data.telefono,
+                f_nacimiento: data.f_nacimiento,
+                dni: data.dni,
+                pais: data.pais,
+                genero: data.genero,
+                password: cliente.password
+            });
+
+            resp.status(200).send({ data: clienteActualizado });
+
+        }
+        //Si NO SE ACTUALIZA PASSWORD
+        else {
+
+            //findByIdAndUpdate ( uid, campos) (el primer parametro 'uid' indicamos que usuario queremos actualizar y el segundo 'campos' los campos a a actualizar)
+            const clienteActualizado = await Cliente.findByIdAndUpdate({ _id: id }, {
+                nombres: data.nombres,
+                apellidos: data.apellidos,
+                telefono: data.telefono,
+                f_nacimiento: data.f_nacimiento,
+                dni: data.dni,
+                pais: data.pais,
+                genero: data.genero,
+
+            });
+
+
+            resp.status(200).send({ data: clienteActualizado });
+
+        }
+        /*   resp.json({
+                ok: true,
+                data,
+                cliente: clienteActualizado
+            })
+
+*/
+
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Error inesperado ',
+            error
+        })
+    }
+
+
+
+
+
+}
+
+//---------------ADMINISTRADOR-----------------------------
 const listar_cliente_filtro_admin = async(req, res = response) => {
 
     let tipo = req.params['tipo'];
@@ -176,61 +256,85 @@ const listar_cliente_filtro_admin = async(req, res = response) => {
 /*Esta funcion la tengo que arreglar */
 const registro_cliente_admin = async(req, resp = response) => {
 
-    const id = req.uid;
-    const { password, email } = req.body; //la respuesta que viene del body
+        const id = req.uid;
+        const { password, email } = req.body; //la respuesta que viene del body
 
-    try {
-        //comprobamos que sea un administrador
+        try {
+            //comprobamos que sea un administrador
 
-        const admin = await Admin.findById(id);
+            const admin = await Admin.findById(id);
 
-        const existeEmail = await Cliente.findOne({ email }); //busca solo este campo
+            const existeEmail = await Cliente.findOne({ email }); //busca solo este campo
 
 
-        //validacion para que el email sea unico
-        if (existeEmail) {
-            //respuesta a dar si existe el email
-            return resp.status(400).json({
+            //validacion para que el email sea unico
+            if (existeEmail) {
+                //respuesta a dar si existe el email
+                return resp.status(400).json({
+                    ok: false,
+                    msg: "El correo ya existe"
+
+                })
+            }
+
+            if (admin) {
+                if (admin.rol === 'admin') {
+                    var data = req.body;
+                    //Encriptado de contraseña
+                    const salt = bcrypt.genSaltSync();
+                    data.password = bcrypt.hashSync(password, salt);
+
+                    const cliente = new Cliente(data); //instancia de cliente del modelo             
+                    console.log(cliente);
+
+                    await cliente.save(); //guarda en la BD
+
+                    resp.json({
+                        ok: true,
+                        cliente,
+                        msg: 'Nuevo cliente creado'
+                    });
+
+
+                }
+
+            } else {
+                console.log('no administrador');
+            }
+        } catch (error) {
+            console.log(error)
+            resp.status(500).json({
                 ok: false,
-                msg: "El correo ya existe"
-
+                msg: 'No tienes los permisos para registrar nuevos clientes'
             })
         }
 
-        if (admin) {
-            if (admin.rol === 'admin') {
-                var data = req.body;
-                //Encriptado de contraseña
-                const salt = bcrypt.genSaltSync();
-                data.password = bcrypt.hashSync(password, salt);
 
-                const cliente = new Cliente(data); //instancia de cliente del modelo             
-                console.log(cliente);
-
-                await cliente.save(); //guarda en la BD
-
-                resp.json({
-                    ok: true,
-                    cliente,
-                    msg: 'Nuevo cliente creado'
-                });
-
-
-            }
-
-        } else {
-            console.log('no administrador');
-        }
-    } catch (error) {
-        console.log(error)
-        resp.status(500).json({
-            ok: false,
-            msg: 'No tienes los permisos para registrar nuevos clientes'
-        })
     }
+    //listar todos los clientes
+const getClientes = async(req, resp) => {
+
+    const desde = Number(req.query.desde); //pagination
+
+    const [clientes, total] = await Promise.all([
+
+        // Usuario.find();: devuelve todos los campos
+        //  Usuario.find( {}, 'nombre email'); especificamos los campos que queremos 
+        //PAGINACION!!!!!!!
+        //skip( desde ) obtiene el resultado a partir de aqui
+        //limit( 5 ): definimos el numero de resultados a obtener
+
+        Cliente.find().skip(desde).limit(6),
+        Cliente.count()
+    ])
 
 
-}
+    resp.json({
+        ok: true,
+        clientes,
+        total
+    });
+};
 
 const get_cliente_id = async(req, resp = response) => {
 
@@ -361,6 +465,8 @@ const borrarCliente = async(req, res = response) => {
     }
 
 }
+
+
 module.exports = {
     registroCliente,
     login_cliente,
@@ -369,5 +475,7 @@ module.exports = {
     registro_cliente_admin,
     get_cliente_id,
     update_cliente_admin,
-    borrarCliente
+    borrarCliente,
+    get_cliente_sesion_id,
+    update_cliente_perfil
 }

@@ -5,7 +5,7 @@ const { validarJWT } = require('../middlewares/validar-jwt');
 var api = express.Router();
 
 var multiparty = require('connect-multiparty');
-var path = multiparty({ uploadDir: './uploads/productos' })
+var path = multiparty({ uploadDir: './uploads/productos' }); //especifica donde se guardan las imagenes
 
 //PRODUCTOS
 api.post('/registro_producto_admin', [validarJWT, path], productoController.registro_producto_admin)
@@ -21,6 +21,12 @@ api.get('/get_producto_id/:id', validarJWT, productoController.get_producto_id);
 api.put('/update_producto_admin/:id', [validarJWT, path], productoController.update_producto_admin);
 
 api.delete('/deleteProducto/:id', validarJWT, productoController.borrarProducto);
+
+api.put('/update_producto_variedades/:id', validarJWT, productoController.update_producto_variedades);
+
+api.put('/agregar_img_galeria_admin/:id', [validarJWT, path], productoController.agregar_img_galeria_admin);
+//    
+api.put('/eliminar_img_galeria_admin/:id', validarJWT, productoController.eliminar_img_galeria_admin);
 
 
 //INVENTARIO

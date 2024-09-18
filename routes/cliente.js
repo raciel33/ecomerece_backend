@@ -8,7 +8,6 @@ api.post('/registroCliente', clienteController.registroCliente);
 
 api.post('/registroCliente_admin', validarJWT, clienteController.registro_cliente_admin);
 
-api.post('/login_cliente', clienteController.login_cliente);
 
 api.get('/panel/cliente', clienteController.getClientes);
 
@@ -19,6 +18,11 @@ api.get('/get_cliente_id/:id', validarJWT, clienteController.get_cliente_id);
 api.put('/update_cliente_admin/:id', validarJWT, clienteController.update_cliente_admin);
 
 api.delete('/delete/:id', validarJWT, clienteController.borrarCliente);
+
+//NO ADMINISTRADOR
+api.post('/login_cliente', clienteController.login_cliente);
+api.get('/get_cliente_sesion_id/:id', validarJWT, clienteController.get_cliente_sesion_id);
+api.put('/update_cliente_perfil/:id', clienteController.update_cliente_perfil);
 
 
 module.exports = api;

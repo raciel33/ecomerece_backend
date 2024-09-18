@@ -267,11 +267,12 @@ const borrarProducto = async(req, res = response) => {
 
     //captamos el parametro
     const uid = req.params['id'];
-    console.log(uid);
 
 
     try {
         const producto = await Producto.findById(uid);
+        console.log(producto);
+
 
         //si el usuario no existe
         if (!producto) {
@@ -283,10 +284,22 @@ const borrarProducto = async(req, res = response) => {
 
             const eliminandoProducto = await Producto.findByIdAndDelete(uid);
 
-            return res.status(200).json({
-                ok: true,
-                msg: "eliminando: " + uid
+            //para que se elimine tambien de la carpeta uploads
+            fs.stat('./uploads/productos/' + producto.portada, function(err) {
+                if (!err) {
+                    fs.unlink('./uploads/productos/' + producto.portada, (err) => {
+                        if (err) throw err
+
+                        return res.status(200).json({
+                            ok: true,
+                            msg: "eliminando: " + uid
+                        })
+                    })
+                }
             })
+
+
+
         }
     } catch (error) {
 
@@ -432,6 +445,144 @@ const registro_inventario = async(req, resp = response) => {
 
     }
 }
+
+const update_producto_variedades = async(req, resp = response) => {
+
+    const id = req.params['id'];
+
+    const data = req.body;
+    console.log(data);
+
+    try {
+
+        const producto = await Producto.findById(id);
+
+        if (!producto) {
+            return resp.status(404).json({
+                ok: false,
+                msg: 'No exixtse producto con ese id'
+            });
+        }
+
+        //se actualiza los campoos de las variedades
+        const productoActualizado = await Producto.findByIdAndUpdate({ _id: id }, {
+            titulo_variedad: data.titulo_variedad,
+            variedades: data.variedades,
+
+        });
+
+        resp.status(200).send({ data: productoActualizado });
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Error inesperado ',
+            error
+        })
+    }
+
+}
+const agregar_img_galeria_admin = async(req, resp = response) => {
+
+    const id = req.params['id'];
+
+    const data = req.body;
+    console.log(data);
+
+    try {
+        //-----------PROCESAMIENTO DE LA IMAGEN ---------------------------
+        const img_path = req.files.imagen.path; //recibo la imagen  (ruta donde esta el nombre de la imagen)
+
+        if (img_path == undefined) {
+            resp.status(500).json({
+                ok: false,
+                msg: 'Error inesperado portada no válida',
+                error
+            })
+        } else {
+
+            //dividimos la ruta en un array para acceder al nombre de img
+            const path_img_array = img_path.split('\\');
+
+            //obtenemos el nombre de la imagen
+            const imagen_name = path_img_array[2];
+
+            //AÑADIMOS LA IMAGEN AL ARRAY DE LA GALERIA DEL PRODUCTO y le damos un id
+            let reg = await Producto.findByIdAndUpdate({ _id: id }, {
+                $push: {
+                    galeria: {
+                        imagen: imagen_name,
+                        _id: data._id
+                    }
+                }
+            });
+
+
+
+
+            resp.status(200).send({ data: reg });
+
+
+        }
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Error inesperado ',
+            error
+        })
+    }
+
+}
+const eliminar_img_galeria_admin = async(req, resp = response) => {
+
+    const id = req.params['id'];
+
+    const data = req.body;
+    console.log(data);
+
+    try {
+        //-----------PROCESAMIENTO DE LA IMAGEN ---------------------------
+
+
+
+        //AÑADIMOS LA IMAGEN AL ARRAY DE LA GALERIA DEL PRODUCTO y le damos un id
+        let reg = await Producto.findByIdAndUpdate({ _id: id }, {
+            $pull: {
+                galeria: {
+                    _id: data._id
+                }
+            }
+        });
+
+        //para que se elimine tambien de la carpeta uploads
+        fs.stat('./uploads/productos/' + data.imagen, function(err) {
+            if (!err) {
+                fs.unlink('./uploads/productos/' + data.imagen, (err) => {
+                    if (err) throw err
+                    resp.status(200).send({ data: reg });
+                })
+            }
+        })
+
+
+
+
+
+
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Error inesperado ',
+            error
+        })
+    }
+
+}
+
 module.exports = {
     registro_producto_admin,
     listarProductos,
@@ -442,5 +593,8 @@ module.exports = {
     borrarProducto,
     listar_inventario_producto_admin,
     eliminar_inventario_producto_admin,
-    registro_inventario
+    registro_inventario,
+    update_producto_variedades,
+    agregar_img_galeria_admin,
+    eliminar_img_galeria_admin
 }

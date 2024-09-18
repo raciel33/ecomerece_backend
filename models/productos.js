@@ -48,10 +48,19 @@ const ProductoSchema = Schema({
         default: 0,
         require: true
     },
+    variedades: [{
+        type: Object,
+        require: false
+    }],
+    titulo_variedad: {
+        type: String,
+        require: false
+    },
     categoria: {
         type: String,
         require: true
     },
+
     estado: {
         type: String,
         default: 'Edicion',
