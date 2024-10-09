@@ -28,11 +28,18 @@ api.put('/agregar_img_galeria_admin/:id', [validarJWT, path], productoController
 //    
 api.put('/eliminar_img_galeria_admin/:id', validarJWT, productoController.eliminar_img_galeria_admin);
 
+//Publico
+
+api.get('/listar_productos_publico/:filtro?', productoController.listar_productos_publico);
+api.get('/detalle_producto_publico/:slug?', productoController.detalle_producto_publico);
+api.get('/listar_productos_recomendados_publico/:categoria?', productoController.listar_productos_recomendados_publico);
+
 
 //INVENTARIO
 
 api.get('/listar_inventario_producto_admin/:id', validarJWT, productoController.listar_inventario_producto_admin);
 api.delete('/eliminar_inventario_producto_admin/:id', validarJWT, productoController.eliminar_inventario_producto_admin);
 api.post('/registro_inventario', [validarJWT, path], productoController.registro_inventario)
+    //
 
 module.exports = api;

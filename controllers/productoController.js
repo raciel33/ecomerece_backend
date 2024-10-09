@@ -41,7 +41,9 @@ const registro_producto_admin = async(req, resp = response) => {
                 data.portada = portada_name; //le asignamos el nombre a la imagen de portada
 
                 //------------------------ -----FIN -----
-                data.slug = data.titulo.toLowerCase().replace(/ /g, '-').replace(/^[\w]+/g, '') //convertimos el titulo en un slug
+
+                //data.slug = data.titulo.toLowerCase().replace(/ /g, '-').replace(/^[\w]+/g, '') //convertimos el titulo en un slug
+                data.slug = data.titulo.toLowerCase().replace(/\W|^/g, '_') //convertimos el titulo en un slug
 
 
                 const producto = new Producto(data); //instancia de cliente del modelo             
@@ -583,6 +585,49 @@ const eliminar_img_galeria_admin = async(req, resp = response) => {
 
 }
 
+///-------PUBLICO---------------------
+const listar_productos_publico = async(req, res = response) => {
+
+    // let tipo = req.params['tipo'];
+    let filtro = req.params['filtro'];
+    let data = [];
+
+    /**si no hay filtrado devuelve todos los productos */
+    if (filtro == null || filtro == 'null') {
+        let reg = await Producto.find();
+        res.status(200).send({ data: reg })
+
+    } else {
+        //buscamos el producto por su titulo y lo ordenamos por la fecha de creacion (primeros los mas recientes)
+        let reg = await Producto.find({ titulo: new RegExp(filtro, 'i') }).sort({ createdAt: -1 });
+        res.status(200).send({ data: reg });
+
+
+    }
+
+};
+const detalle_producto_publico = async(req, res = response) => {
+
+    // let tipo = req.params['tipo'];
+    let slug = req.params['slug'];
+
+    //buscamos el producto por su slug
+    let reg = await Producto.findOne({ slug: slug });
+    res.status(200).send({ data: reg });
+
+};
+const listar_productos_recomendados_publico = async(req, res = response) => {
+
+    let categoria = req.params['categoria'];
+    //buscamos el producto por su categoria y lo ordenamos por la fecha de creacion (primeros los mas recientes)-limitamos a 8 productos
+    let reg = await Producto.find({ categoria: categoria }).sort({ createdAt: -1 }).limit(8);
+    res.status(200).send({ data: reg });
+
+
+
+
+};
+
 module.exports = {
     registro_producto_admin,
     listarProductos,
@@ -596,5 +641,8 @@ module.exports = {
     registro_inventario,
     update_producto_variedades,
     agregar_img_galeria_admin,
-    eliminar_img_galeria_admin
+    eliminar_img_galeria_admin,
+    listar_productos_publico,
+    detalle_producto_publico,
+    listar_productos_recomendados_publico
 }

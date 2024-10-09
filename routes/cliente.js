@@ -25,4 +25,8 @@ api.get('/get_cliente_sesion_id/:id', validarJWT, clienteController.get_cliente_
 api.put('/update_cliente_perfil/:id', clienteController.update_cliente_perfil);
 
 
+//DIRECCIONES
+//
+api.post('/registro_direccion_cliente', validarJWT, clienteController.registro_direccion_cliente);
+
 module.exports = api;

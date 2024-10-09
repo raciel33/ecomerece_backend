@@ -4,9 +4,11 @@ const bcrypt = require('bcryptjs')
 //importamos el modelo
 const Cliente = require('../models/cliente');
 const Admin = require('../models/admin');
+const Direccion = require('../models/direcciones')
 
 const { generarJWT } = require('../helpers/jwt');
 const { response } = require('express');
+
 
 
 //---------------NO ADMINISTRADOR------------------------
@@ -160,7 +162,7 @@ const update_cliente_perfil = async(req, resp = response) => {
         const { password } = req.body; // extraemos el email
 
         if (password) {
-            //Encriptado de contraseña
+            //Encriptado de contraseña 
             const salt = bcrypt.genSaltSync();
             cliente.password = bcrypt.hashSync(password, salt);
 
@@ -222,6 +224,44 @@ const update_cliente_perfil = async(req, resp = response) => {
 
 }
 
+
+//--------------DIRECCIONES----------------------------
+
+const registro_direccion_cliente = async(req, resp = response) => {
+
+    const id = req.uid;
+
+    try {
+        //comprobamos que sea un cliente
+        if (id) {
+
+            var data = req.body;
+
+            const reg = await Direccion.create(data);
+
+            resp.status(200).send({ data: reg });
+
+
+
+
+
+        } else {
+            console.log('no cliente');
+        }
+    } catch (error) {
+        console.log(error)
+        resp.status(500).json({
+            ok: false,
+            msg: 'No tienes los permisos para registrar nuevas direcciones'
+        })
+    }
+
+
+}
+
+
+
+
 //---------------ADMINISTRADOR-----------------------------
 const listar_cliente_filtro_admin = async(req, res = response) => {
 
@@ -256,62 +296,64 @@ const listar_cliente_filtro_admin = async(req, res = response) => {
 /*Esta funcion la tengo que arreglar */
 const registro_cliente_admin = async(req, resp = response) => {
 
-        const id = req.uid;
-        const { password, email } = req.body; //la respuesta que viene del body
+    const id = req.uid;
+    const { password, email } = req.body; //la respuesta que viene del body
 
-        try {
-            //comprobamos que sea un administrador
+    try {
+        //comprobamos que sea un administrador
 
-            const admin = await Admin.findById(id);
+        const admin = await Admin.findById(id);
 
-            const existeEmail = await Cliente.findOne({ email }); //busca solo este campo
-
-
-            //validacion para que el email sea unico
-            if (existeEmail) {
-                //respuesta a dar si existe el email
-                return resp.status(400).json({
-                    ok: false,
-                    msg: "El correo ya existe"
-
-                })
-            }
-
-            if (admin) {
-                if (admin.rol === 'admin') {
-                    var data = req.body;
-                    //Encriptado de contraseña
-                    const salt = bcrypt.genSaltSync();
-                    data.password = bcrypt.hashSync(password, salt);
-
-                    const cliente = new Cliente(data); //instancia de cliente del modelo             
-                    console.log(cliente);
-
-                    await cliente.save(); //guarda en la BD
-
-                    resp.json({
-                        ok: true,
-                        cliente,
-                        msg: 'Nuevo cliente creado'
-                    });
+        const existeEmail = await Cliente.findOne({ email }); //busca solo este campo
 
 
-                }
-
-            } else {
-                console.log('no administrador');
-            }
-        } catch (error) {
-            console.log(error)
-            resp.status(500).json({
+        //validacion para que el email sea unico
+        if (existeEmail) {
+            //respuesta a dar si existe el email
+            return resp.status(400).json({
                 ok: false,
-                msg: 'No tienes los permisos para registrar nuevos clientes'
+                msg: "El correo ya existe"
+
             })
         }
 
+        if (admin) {
+            if (admin.rol === 'admin') {
+                var data = req.body;
+                //Encriptado de contraseña
+                const salt = bcrypt.genSaltSync();
+                data.password = bcrypt.hashSync(password, salt);
 
+                const cliente = new Cliente(data); //instancia de cliente del modelo             
+                console.log(cliente);
+
+                await cliente.save(); //guarda en la BD
+
+                resp.json({
+                    ok: true,
+                    cliente,
+                    msg: 'Nuevo cliente creado'
+                });
+
+
+            }
+
+        } else {
+            console.log('no administrador');
+        }
+    } catch (error) {
+        console.log(error)
+        resp.status(500).json({
+            ok: false,
+            msg: 'No tienes los permisos para registrar nuevos clientes'
+        })
     }
-    //listar todos los clientes
+
+
+}
+
+
+//listar todos los clientes
 const getClientes = async(req, resp) => {
 
     const desde = Number(req.query.desde); //pagination
@@ -477,5 +519,6 @@ module.exports = {
     update_cliente_admin,
     borrarCliente,
     get_cliente_sesion_id,
-    update_cliente_perfil
+    update_cliente_perfil,
+    registro_direccion_cliente
 }
