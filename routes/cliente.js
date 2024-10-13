@@ -28,5 +28,11 @@ api.put('/update_cliente_perfil/:id', clienteController.update_cliente_perfil);
 //DIRECCIONES
 //
 api.post('/registro_direccion_cliente', validarJWT, clienteController.registro_direccion_cliente);
+//
+api.get('/listar_direccion_cliente/:id', validarJWT, clienteController.listar_direccion_cliente);
+//
+api.put('/cambiar_direccion_principal/:id/:cliente', validarJWT, clienteController.cambiar_direccion_principal);
+//
+api.delete('/borrar_direccion/:id', validarJWT, clienteController.borrar_direccion);
 
 module.exports = api;

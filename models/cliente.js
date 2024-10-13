@@ -7,45 +7,45 @@ const ClienteSchema = Schema({
 
     nombres: {
         type: String,
-        require: true
+        required: true
     },
     apellidos: {
         type: String,
-        require: true
+        required: true
     },
 
     pais: {
         type: String,
-        require: false
+        required: false
     },
     email: {
         type: String,
-        require: true
+        required: true
     },
     password: {
         type: String,
-        require: true
+        required: true
     },
     perfil: {
         type: String,
         default: 'perfil.png',
-        require: false
+        required: false
     },
     telefono: {
         type: String,
-        require: false
+        required: false
     },
     genero: {
         type: String,
-        require: false
+        required: false
     },
     f_nacimiento: {
         type: String,
-        require: false
+        required: false
     },
     dni: {
         type: String,
-        require: false
+        required: false
     },
     createdAt: {
         type: Date,

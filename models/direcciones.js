@@ -8,47 +8,47 @@ const DireccionesSchema = Schema({
     cliente: {
         type: Schema.ObjectId,
         ref: 'cliente', //hace referencia a esta collection
-        require: true
+        required: true
     },
     destinatario: {
         type: String,
-        require: true
+        required: true
     },
     dni: {
         type: String,
-        require: true
+        required: true
     },
     cp: {
         type: String,
-        require: true
+        required: true
     },
     direccion: {
         type: String,
-        require: true
+        required: true
     },
     pais: {
         type: String,
-        require: true
+        required: true
     },
     region: {
         type: String,
-        require: true
+        required: false
     },
     provincia: {
         type: String,
-        require: true
+        required: false
     },
-    distrito: {
+    poblacion: {
         type: String,
-        require: true
+        required: false
     },
     telefono: {
         type: String,
-        require: true
+        required: true
     },
     principal: {
         type: Boolean,
-        require: true
+        required: true
     },
     createdAt: {
         type: Date,

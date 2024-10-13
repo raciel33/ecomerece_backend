@@ -230,6 +230,7 @@ const update_cliente_perfil = async(req, resp = response) => {
 const registro_direccion_cliente = async(req, resp = response) => {
 
     const id = req.uid;
+    console.log(req.body);
 
     try {
         //comprobamos que sea un cliente
@@ -237,12 +238,25 @@ const registro_direccion_cliente = async(req, resp = response) => {
 
             var data = req.body;
 
+            //Si esta es la direccion principal (si el check de cuenta principal es true)
+            if (data.principal) {
+
+                //todas las direcciones del cliente
+                const direcciones = await Direccion.find({ cliente: data.cliente });
+
+                //recorremos todas las direcciones del cliente y ponemos el campo principal en false
+                direcciones.forEach(async element => {
+
+                    await Direccion.findByIdAndUpdate({ _id: element._id }, { principal: false });
+                });
+
+            }
+
+
+            //se guarda la direccion
             const reg = await Direccion.create(data);
 
             resp.status(200).send({ data: reg });
-
-
-
 
 
         } else {
@@ -259,7 +273,109 @@ const registro_direccion_cliente = async(req, resp = response) => {
 
 }
 
+const listar_direccion_cliente = async(req, resp = response) => {
 
+    const id = req.params['id'];
+
+    try {
+        //comprobamos que sea un cliente
+        if (id) {
+
+            //todas las direcciones del cliente
+            const direcciones = await Direccion.find({ cliente: id }).populate('cliente').sort({ createdAt: -1 });
+
+            resp.status(200).send({ data: direcciones });
+
+
+        } else {
+            console.log('no cliente');
+        }
+    } catch (error) {
+        console.log(error)
+        resp.status(500).json({
+            ok: false,
+            msg: 'No tienes los permisos para registrar nuevas direcciones'
+        })
+    }
+
+
+}
+
+const cambiar_direccion_principal = async(req, resp = response) => {
+
+    const cliente_id = req.uid;
+    console.log(req.body);
+
+    try {
+        //comprobamos que sea un cliente
+        if (cliente_id) {
+
+            var id = req.params['id'];
+
+            //todas las direcciones del cliente
+            const direcciones = await Direccion.find({ cliente: cliente_id });
+
+            //recorremos todas las direcciones del cliente y ponemos el campo principal en false
+            direcciones.forEach(async element => {
+
+                await Direccion.findByIdAndUpdate({ _id: element._id }, { principal: false });
+            });
+
+            //ponemos la direccion seleccionada en true
+            await Direccion.findByIdAndUpdate({ _id: id }, { principal: true });
+
+
+            resp.status(200).send({ data: true });
+
+
+        } else {
+            console.log('no cliente');
+        }
+    } catch (error) {
+        console.log(error)
+        resp.status(500).json({
+            ok: false,
+            msg: 'No tienes los permisos para registrar nuevas direcciones'
+        })
+    }
+
+
+}
+const borrar_direccion = async(req, res = response) => {
+
+    //captamos el parametro
+    const uid = req.params['id'];
+    console.log(uid);
+
+
+    try {
+        const direccion = await Direccion.findById(uid);
+
+        //si el usuario no existe
+        if (!direccion) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'La direccion no existe'
+            })
+        } else {
+
+            const eliminando_direccion = await Direccion.findByIdAndDelete(uid);
+
+            return res.status(200).json({
+                ok: true,
+                msg: "eliminando: " + uid
+            })
+        }
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado '
+        })
+    }
+
+}
 
 
 //---------------ADMINISTRADOR-----------------------------
@@ -520,5 +636,8 @@ module.exports = {
     borrarCliente,
     get_cliente_sesion_id,
     update_cliente_perfil,
-    registro_direccion_cliente
+    registro_direccion_cliente,
+    listar_direccion_cliente,
+    cambiar_direccion_principal,
+    borrar_direccion
 }

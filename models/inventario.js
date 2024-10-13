@@ -8,24 +8,24 @@ const InventarioSchema = Schema({
     producto: {
         type: Schema.ObjectId,
         ref: 'producto', //hace referencia a esta collection
-        require: true
+        required: true
     },
     apellidos: {
         type: String,
-        require: true
+        required: true
     },
     cantidad: {
         type: Number,
-        require: true
+        required: true
     },
     admin: {
         type: Schema.ObjectId,
         ref: 'admin', //hace referencia a esta collection
-        require: true
+        required: true
     },
     proveedor: {
         type: String,
-        require: true
+        required: true
     },
     createdAt: {
         type: Date,

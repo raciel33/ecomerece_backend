@@ -7,23 +7,23 @@ const ConfigSchema = Schema({
 
     categorias: [{
         type: Object,
-        require: true
+        required: true
     }],
     titulo: {
         type: String,
-        require: true
+        required: true
     },
     logo: {
         type: String,
-        require: true
+        required: true
     },
     serie: {
         type: String,
-        require: true
+        required: true
     },
     correlativo: {
         type: String,
-        require: true
+        required: true
     }
 
 }, { collection: 'config' }); //aqui podemos definir el nombre de la colection

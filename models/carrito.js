@@ -8,27 +8,27 @@ const CarritoSchema = Schema({
     producto: {
         type: Schema.ObjectId,
         ref: 'producto', //hace referencia a esta collection
-        require: true
+        required: true
     },
     cliente: {
         type: Schema.ObjectId,
         ref: 'cliente', //hace referencia a esta collection
-        require: true
+        required: true
     },
     cantidad: {
         type: Number,
-        require: true
+        required: true
     },
 
 
     variedad: {
         type: String,
-        require: true
+        required: true
     },
     createdAt: {
         type: Date,
         default: Date.now,
-        require: true
+        required: true
     }
 
 }, { collection: 'Carrito' }); //aqui podemos definir el nombre de la colection

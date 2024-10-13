@@ -7,69 +7,69 @@ const ProductoSchema = Schema({
 
     titulo: {
         type: String,
-        require: true
+        required: true
     },
     slug: {
         type: String,
-        require: true
+        required: true
     },
 
     galeria: [{
         type: Object,
-        require: false
+        required: false
     }],
     portada: {
         type: String,
-        require: true
+        required: true
     },
     precio: {
         type: Number,
-        require: true
+        required: true
     },
     descripcion: {
         type: String,
-        require: true
+        required: true
     },
     contenido: {
         type: String,
-        require: true
+        required: true
     },
     stock: {
         type: Number,
-        require: true
+        required: true
     },
     n_ventas: {
         type: Number,
         default: 0,
-        require: true
+        required: true
     },
     n_puntos: {
         type: Number,
         default: 0,
-        require: true
+        required: true
     },
     variedades: [{
         type: Object,
-        require: false
+        required: false
     }],
     titulo_variedad: {
         type: String,
-        require: false
+        required: false
     },
     categoria: {
         type: String,
-        require: true
+        required: true
     },
 
     estado: {
         type: String,
         default: 'Edicion',
-        require: true
+        required: true
     },
     createdAt: {
         type: Date,
         default: Date.now,
-        require: true
+        required: true
     }
 
 }, { collection: 'Producto' }, { typeKey: '$type' }); //aqui podemos definir el nombre de la colection

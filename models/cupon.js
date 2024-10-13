@@ -7,24 +7,24 @@ const CuponSchema = Schema({
 
     codigo: {
         type: String,
-        require: true
+        required: true
     },
     tipo: { //porcentaje o precio fijo
         type: String,
-        require: true
+        required: true
     },
     valor: {
         type: Number,
-        require: true
+        required: true
     },
     limite: {
         type: Number,
-        require: true
+        required: true
     },
     createdAt: {
         type: Date,
         default: Date.now,
-        require: true
+        required: true
     }
 
 }, { collection: 'cupon' }); //aqui podemos definir el nombre de la colection

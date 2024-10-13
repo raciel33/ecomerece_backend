@@ -7,34 +7,34 @@ const AdminSchema = Schema({
 
     nombres: {
         type: String,
-        require: true
+        required: true
     },
     apellidos: {
         type: String,
-        require: true
+        required: true
     },
 
     email: {
         type: String,
-        require: true
+        required: true
     },
     password: {
         type: String,
-        require: true
+        required: true
     },
 
     telefono: {
         type: String,
-        require: true
+        required: true
     },
     rol: {
         type: String,
-        require: true
+        required: true
     },
 
     dni: {
         type: String,
-        require: true
+        required: true
     }
 
 }, { collection: 'Admin' }); //aqui podemos definir el nombre de la colection
