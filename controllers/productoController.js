@@ -627,7 +627,25 @@ const listar_productos_recomendados_publico = async(req, res = response) => {
 
 
 };
+const listar_productos_nuevos_publico = async(req, res = response) => {
 
+
+    let reg = await Producto.find().sort({ createdAt: -1 }).limit(8);
+    res.status(200).send({ data: reg })
+
+
+
+};
+
+const listar_mas_vendidos_publico = async(req, res = response) => {
+
+
+    let reg = await Producto.find().sort({ n_ventas: -1 }).limit(8);
+    res.status(200).send({ data: reg })
+
+
+
+};
 module.exports = {
     registro_producto_admin,
     listarProductos,
@@ -644,5 +662,7 @@ module.exports = {
     eliminar_img_galeria_admin,
     listar_productos_publico,
     detalle_producto_publico,
-    listar_productos_recomendados_publico
+    listar_productos_recomendados_publico,
+    listar_productos_nuevos_publico,
+    listar_mas_vendidos_publico
 }

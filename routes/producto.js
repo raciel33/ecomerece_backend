@@ -33,7 +33,9 @@ api.put('/eliminar_img_galeria_admin/:id', validarJWT, productoController.elimin
 api.get('/listar_productos_publico/:filtro?', productoController.listar_productos_publico);
 api.get('/detalle_producto_publico/:slug?', productoController.detalle_producto_publico);
 api.get('/listar_productos_recomendados_publico/:categoria?', productoController.listar_productos_recomendados_publico);
-
+//
+api.get('/listar_productos_nuevos_publico/', productoController.listar_productos_nuevos_publico);
+api.get('/listar_mas_vendidos_publico/', productoController.listar_mas_vendidos_publico);
 
 //INVENTARIO
 

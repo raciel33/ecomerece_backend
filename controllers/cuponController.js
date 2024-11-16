@@ -167,10 +167,50 @@ const borrarCupon = async(req, res = response) => {
     }
 
 }
+
+const validarCupon = async(req, res = response) => {
+
+    //captamos el parametro
+    const cupon = req.params['cupon'];
+
+
+    try {
+
+        const data = await Cupon.findOne({ codigo: cupon });
+
+        if (data) {
+
+            if (data.limite == 0) {
+                res.status(200).send({ data: undefined });
+            } else {
+                res.status(200).send({ data: data });
+
+            }
+
+
+        } else {
+            res.status(200).send({ data: undefined });
+
+        }
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado '
+        })
+    }
+
+}
+
+
+
+
 module.exports = {
     registro_cupon_admin,
     listarCupones,
     update_cupon_admin,
     get_cupon_id,
-    borrarCupon
+    borrarCupon,
+    validarCupon
 }

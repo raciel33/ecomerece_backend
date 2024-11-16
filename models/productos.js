@@ -32,7 +32,7 @@ const ProductoSchema = Schema({
     },
     contenido: {
         type: String,
-        required: true
+        required: false
     },
     stock: {
         type: Number,

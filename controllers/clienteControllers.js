@@ -341,6 +341,8 @@ const cambiar_direccion_principal = async(req, resp = response) => {
 
 
 }
+
+
 const borrar_direccion = async(req, res = response) => {
 
     //captamos el parametro
@@ -377,6 +379,44 @@ const borrar_direccion = async(req, res = response) => {
 
 }
 
+const get_direccion_principal = async(req, resp = response) => {
+
+    const id = req.uid;
+    //  console.log(req.body);
+
+    try {
+        //comprobamos que sea un cliente
+        if (id) {
+
+            var direccion = undefined; //si no tiene direccion principal
+
+            //buscamos la direccion que tenga como campo principal: true
+            direccion = await Direccion.findOne({ cliente: id, principal: true });
+
+            //si no tiene direccion principal
+            if (direccion == undefined) {
+                resp.status(200).send({ data: undefined });
+
+            } else {
+
+                resp.status(200).send({ data: direccion });
+            }
+
+
+
+        } else {
+            console.log('no cliente');
+        }
+    } catch (error) {
+        console.log(error)
+        resp.status(500).json({
+            ok: false,
+            msg: 'No tienes los permisos para registrar nuevas direcciones'
+        })
+    }
+
+
+}
 
 //---------------ADMINISTRADOR-----------------------------
 const listar_cliente_filtro_admin = async(req, res = response) => {
@@ -639,5 +679,9 @@ module.exports = {
     registro_direccion_cliente,
     listar_direccion_cliente,
     cambiar_direccion_principal,
-    borrar_direccion
+    borrar_direccion,
+    get_direccion_principal
+
+
+
 }

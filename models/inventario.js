@@ -10,10 +10,7 @@ const InventarioSchema = Schema({
         ref: 'producto', //hace referencia a esta collection
         required: true
     },
-    apellidos: {
-        type: String,
-        required: true
-    },
+
     cantidad: {
         type: Number,
         required: true

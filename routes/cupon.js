@@ -15,6 +15,9 @@ api.put('/update_cupon_admin/:id', [validarJWT, path], cuponController.update_cu
 api.get('/get_cupon_id/:id', validarJWT, cuponController.get_cupon_id);
 api.delete('/deleteCupon/:id', validarJWT, cuponController.borrarCupon);
 
+api.get('/validarCupon/:cupon', validarJWT, cuponController.validarCupon);
+
+
 
 
 

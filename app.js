@@ -31,7 +31,13 @@ var admin_route = require('./routes/admin')
 var producto_route = require('./routes/producto');
 var cupon_route = require('./routes/cupon');
 var config_route = require('./routes/config')
-var carrito_route = require('./routes/carrito')
+var carrito_route = require('./routes/carrito');
+var ventas_route = require('./routes/venta')
+var payments_route = require('./routes/payments');
+var descuento_route = require('./routes/descuento');
+
+
+
 
 
 
@@ -62,6 +68,7 @@ io.on('connection', function(socket) {
         console.log(data);
     });
 
+
 })
 
 
@@ -72,8 +79,9 @@ app.use('/api', producto_route);
 app.use('/api', cupon_route);
 app.use('/api', config_route);
 app.use('/api', carrito_route);
-
-
+app.use('/api', ventas_route); //
+app.use('/api', payments_route);
+app.use('/api', descuento_route);
 
 
 

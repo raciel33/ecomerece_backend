@@ -34,5 +34,7 @@ api.get('/listar_direccion_cliente/:id', validarJWT, clienteController.listar_di
 api.put('/cambiar_direccion_principal/:id/:cliente', validarJWT, clienteController.cambiar_direccion_principal);
 //
 api.delete('/borrar_direccion/:id', validarJWT, clienteController.borrar_direccion);
+//
+api.get('/get_direccion_principal/:id', validarJWT, clienteController.get_direccion_principal);
 
 module.exports = api;
